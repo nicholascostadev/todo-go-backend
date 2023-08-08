@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/nicholascostadev/todo-backend/controllers"
 	"github.com/nicholascostadev/todo-backend/models"
 )
@@ -26,7 +27,7 @@ func AddTodo(c *fiber.Ctx, todos *[]models.Todo) error {
 	}
 
 	newTodo := models.Todo{
-		Id:          len(*todos) + 1,
+		Id:          int(uuid.New().ID()),
 		Title:       requestBody.Title,
 		Description: requestBody.Description,
 		Completed:   false,
@@ -45,4 +46,35 @@ func DeleteTodoById(c *fiber.Ctx, todos *[]models.Todo) error {
 	}
 
 	return c.JSON(controllers.DeleteTodoById(todos, id))
+}
+
+type UpdateTodoRequestBody struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Completed   bool   `json:"completed"`
+}
+
+func UpdateTodoById(c *fiber.Ctx, todos *[]models.Todo) error {
+	id, err := strconv.Atoi(c.Params("id"))
+
+	if err != nil {
+		fmt.Println(c.Params("id"), id, err)
+
+		c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Todo Id"})
+	}
+
+	var requestBody UpdateTodoRequestBody
+
+	if err := c.BodyParser(&requestBody); err != nil {
+		c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Todo Data"})
+	}
+
+	newTodo := models.Todo{
+		Id:          id,
+		Title:       requestBody.Title,
+		Description: requestBody.Description,
+		Completed:   requestBody.Completed,
+	}
+
+	return c.JSON(controllers.UpdateTodoById(todos, id, newTodo))
 }

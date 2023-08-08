@@ -18,4 +18,8 @@ func TodosRouter(router fiber.Router, todos []models.Todo) {
 	router.Delete("/:id", func(c *fiber.Ctx) error {
 		return services.DeleteTodoById(c, &todos)
 	})
+
+	router.Patch("/:id", func(c *fiber.Ctx) error {
+		return services.UpdateTodoById(c, &todos)
+	})
 }

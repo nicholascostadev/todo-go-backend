@@ -25,3 +25,14 @@ func DeleteTodoById(todos *[]models.Todo, id int) []models.Todo {
 
 	return *todos
 }
+
+func UpdateTodoById(todos *[]models.Todo, id int, newTodo models.Todo) models.Todo {
+	for i, todo := range *todos {
+		if todo.Id == id {
+			(*todos)[i] = newTodo
+			break
+		}
+	}
+
+	return newTodo
+}
