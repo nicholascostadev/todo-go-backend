@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/nicholascostadev/todo-backend/models"
+	"github.com/nicholascostadev/todo-backend/model"
 	"github.com/nicholascostadev/todo-backend/router"
 )
 
@@ -12,7 +12,7 @@ func main() {
 
 	app.Use(cors.New())
 
-	todos := []models.Todo{}
+	todos := []model.Todo{}
 
 	router.InitRoutes(app, todos)
 

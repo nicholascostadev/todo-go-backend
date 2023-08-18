@@ -1,17 +1,21 @@
-package services
+package controller
 
 import (
 	"fmt"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
-	"github.com/nicholascostadev/todo-backend/controllers"
-	"github.com/nicholascostadev/todo-backend/models"
+	"github.com/nicholascostadev/todo-backend/model"
+	"github.com/nicholascostadev/todo-backend/service"
 )
 
-func GetTodos(c *fiber.Ctx, todos []models.Todo) error {
-	return controllers.GetTodos(c, todos)
+type NewTodoController struct {
+}
+
+var todoService = service.NewTodoService{}
+
+func (T *NewTodoController) GetTodos(c *fiber.Ctx, todos []model.Todo) error {
+	return todoService.GetTodos(c, todos)
 }
 
 type AddTodoRequestBody struct {
@@ -19,24 +23,20 @@ type AddTodoRequestBody struct {
 	Description string `json:"description"`
 }
 
-func AddTodo(c *fiber.Ctx, todos *[]models.Todo) error {
+func (T *NewTodoController) AddTodo(c *fiber.Ctx, todos *[]model.Todo) error {
 	var requestBody AddTodoRequestBody
 
 	if err := c.BodyParser(&requestBody); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Todo Data"})
 	}
 
-	newTodo := models.Todo{
-		Id:          int(uuid.New().ID()),
+	return c.JSON(todoService.AddTodo(todos, service.AddTodoRequestBody{
 		Title:       requestBody.Title,
 		Description: requestBody.Description,
-		Completed:   false,
-	}
-
-	return c.JSON(controllers.AddTodo(todos, newTodo))
+	}))
 }
 
-func DeleteTodoById(c *fiber.Ctx, todos *[]models.Todo) error {
+func (T *NewTodoController) DeleteTodoById(c *fiber.Ctx, todos *[]model.Todo) error {
 	id, err := strconv.Atoi(c.Params("id"))
 
 	if err != nil {
@@ -45,7 +45,7 @@ func DeleteTodoById(c *fiber.Ctx, todos *[]models.Todo) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Todo Id"})
 	}
 
-	return c.JSON(controllers.DeleteTodoById(todos, id))
+	return c.JSON(todoService.DeleteTodoById(todos, id))
 }
 
 type UpdateTodoRequestBody struct {
@@ -54,7 +54,7 @@ type UpdateTodoRequestBody struct {
 	Completed   bool   `json:"completed"`
 }
 
-func UpdateTodoById(c *fiber.Ctx, todos *[]models.Todo) error {
+func (T *NewTodoController) UpdateTodoById(c *fiber.Ctx, todos *[]model.Todo) error {
 	id, err := strconv.Atoi(c.Params("id"))
 
 	if err != nil {
@@ -69,12 +69,9 @@ func UpdateTodoById(c *fiber.Ctx, todos *[]models.Todo) error {
 		c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Todo Data"})
 	}
 
-	newTodo := models.Todo{
-		Id:          id,
+	return c.JSON(todoService.UpdateTodoById(todos, id, service.UpdateTodoRequestBody{
 		Title:       requestBody.Title,
 		Description: requestBody.Description,
 		Completed:   requestBody.Completed,
-	}
-
-	return c.JSON(controllers.UpdateTodoById(todos, id, newTodo))
+	}))
 }
