@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/nicholascostadev/todo-backend/model"
@@ -9,7 +11,13 @@ import (
 type NewTodoService struct {
 }
 
-func (T *NewTodoService) GetTodos(c *fiber.Ctx, todos []model.Todo) error {
+func (T *NewTodoService) GetTodos(c *fiber.Ctx) error {
+	todos, err := model.GetAllTodos()
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
 	return c.JSON(todos)
 }
 
@@ -18,28 +26,27 @@ type AddTodoRequestBody struct {
 	Description string `json:"description"`
 }
 
-func (T *NewTodoService) AddTodo(todos *[]model.Todo, partialTodo AddTodoRequestBody) []model.Todo {
+func (T *NewTodoService) AddTodo(partialTodo AddTodoRequestBody) model.Todo {
 	newTodo := model.Todo{
-		Id:          int(uuid.New().ID()),
+		ID:          int(uuid.New().ID()),
 		Title:       partialTodo.Title,
 		Description: partialTodo.Description,
 		Completed:   false,
 	}
 
-	*todos = append(*todos, newTodo)
+	createdTodo, err := model.CreateTodo(newTodo)
 
-	return *todos
-}
-
-func (T *NewTodoService) DeleteTodoById(todos *[]model.Todo, id int) []model.Todo {
-	for i, todo := range *todos {
-		if todo.Id == id {
-			*todos = append((*todos)[:i], (*todos)[i+1:]...)
-			break
-		}
+	if err != nil {
+		return model.Todo{}
 	}
 
-	return *todos
+	return createdTodo
+}
+
+func (T *NewTodoService) DeleteTodoById(id int) error {
+	err := model.DeleteTodo(id)
+
+	return err
 }
 
 type UpdateTodoRequestBody struct {
@@ -48,20 +55,30 @@ type UpdateTodoRequestBody struct {
 	Completed   bool   `json:"completed"`
 }
 
-func (T *NewTodoService) UpdateTodoById(todos *[]model.Todo, id int, partialTodo UpdateTodoRequestBody) model.Todo {
+func (T *NewTodoService) UpdateTodoById(id int, partialTodo UpdateTodoRequestBody) model.Todo {
 	newTodo := model.Todo{
-		Id:          id,
+		ID:          id,
 		Title:       partialTodo.Title,
 		Description: partialTodo.Description,
 		Completed:   partialTodo.Completed,
 	}
 
-	for i, todo := range *todos {
-		if todo.Id == id {
-			(*todos)[i] = newTodo
-			break
-		}
+	todo, err := model.UpdateTodo(id, newTodo)
+
+	if err != nil {
+		fmt.Println(err)
+		return model.Todo{}
 	}
 
-	return newTodo
+	return todo
+}
+
+func (T *NewTodoService) ClearTodos(completed bool) error {
+	err := model.ClearTodos(completed)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

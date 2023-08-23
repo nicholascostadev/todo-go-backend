@@ -11,10 +11,9 @@ func main() {
 	app := fiber.New()
 
 	app.Use(cors.New())
+	model.SetupDatabase()
 
-	todos := []model.Todo{}
-
-	router.InitRoutes(app, todos)
+	router.InitRoutes(app)
 
 	app.Listen("localhost:8080")
 }
