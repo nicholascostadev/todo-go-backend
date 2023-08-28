@@ -14,7 +14,6 @@ import (
 var db *gorm.DB
 
 func SetupDatabase() {
-
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
@@ -36,7 +35,7 @@ func SetupDatabase() {
 		panic(err)
 	}
 
-	err = db.AutoMigrate(&Todo{})
+	err = db.AutoMigrate(&Todo{}, &User{}, &Session{})
 	if err != nil {
 		fmt.Println(err)
 	}

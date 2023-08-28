@@ -8,24 +8,9 @@ import (
 var todoController = controller.NewTodoController{}
 
 func TodosRouter(router fiber.Router) {
-	router.Get("/", func(c *fiber.Ctx) error {
-		return todoController.GetTodos(c)
-	})
-
-	router.Post("/", func(c *fiber.Ctx) error {
-		return todoController.AddTodo(c)
-	})
-  
-	router.Delete("/clear-todos", func(c *fiber.Ctx) error {
-		return todoController.ClearTodos(c)
-	})
-
-	router.Delete("/:id", func(c *fiber.Ctx) error {
-		return todoController.DeleteTodoById(c)
-	})
-
-	router.Patch("/:id", func(c *fiber.Ctx) error {
-		return todoController.UpdateTodoById(c)
-	})
-
+	router.Get("/", todoController.GetTodos)
+	router.Post("/", todoController.AddTodo)
+	router.Delete("/clear-todos", todoController.ClearTodos)
+	router.Delete("/:id", todoController.DeleteTodoById)
+	router.Patch("/:id", todoController.UpdateTodoById)
 }

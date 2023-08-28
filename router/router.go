@@ -7,4 +7,6 @@ import (
 func InitRoutes(app *fiber.App) {
 	// Todo routes
 	TodosRouter(app.Group("/todos"))
+	UserRouter(app.Group("/users"))
+	AuthRouter(app.Group("/auth"))
 }

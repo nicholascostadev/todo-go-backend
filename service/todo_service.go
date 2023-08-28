@@ -8,12 +8,10 @@ import (
 	"github.com/nicholascostadev/todo-backend/model"
 )
 
-type NewTodoService struct {
-}
+type NewTodoService struct{}
 
 func (T *NewTodoService) GetTodos(c *fiber.Ctx) error {
 	todos, err := model.GetAllTodos()
-
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -21,12 +19,12 @@ func (T *NewTodoService) GetTodos(c *fiber.Ctx) error {
 	return c.JSON(todos)
 }
 
-type AddTodoRequestBody struct {
+type AddTodoInput struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
 
-func (T *NewTodoService) AddTodo(partialTodo AddTodoRequestBody) model.Todo {
+func (T *NewTodoService) AddTodo(partialTodo AddTodoInput) model.Todo {
 	newTodo := model.Todo{
 		ID:          int(uuid.New().ID()),
 		Title:       partialTodo.Title,
@@ -35,7 +33,6 @@ func (T *NewTodoService) AddTodo(partialTodo AddTodoRequestBody) model.Todo {
 	}
 
 	createdTodo, err := model.CreateTodo(newTodo)
-
 	if err != nil {
 		return model.Todo{}
 	}
@@ -49,13 +46,13 @@ func (T *NewTodoService) DeleteTodoById(id int) error {
 	return err
 }
 
-type UpdateTodoRequestBody struct {
+type UpdateTodoInput struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Completed   bool   `json:"completed"`
 }
 
-func (T *NewTodoService) UpdateTodoById(id int, partialTodo UpdateTodoRequestBody) model.Todo {
+func (T *NewTodoService) UpdateTodoById(id int, partialTodo UpdateTodoInput) model.Todo {
 	newTodo := model.Todo{
 		ID:          id,
 		Title:       partialTodo.Title,
@@ -64,7 +61,6 @@ func (T *NewTodoService) UpdateTodoById(id int, partialTodo UpdateTodoRequestBod
 	}
 
 	todo, err := model.UpdateTodo(id, newTodo)
-
 	if err != nil {
 		fmt.Println(err)
 		return model.Todo{}
@@ -75,7 +71,6 @@ func (T *NewTodoService) UpdateTodoById(id int, partialTodo UpdateTodoRequestBod
 
 func (T *NewTodoService) ClearTodos(completed bool) error {
 	err := model.ClearTodos(completed)
-
 	if err != nil {
 		return err
 	}
