@@ -8,7 +8,8 @@ import (
 var authController = controller.NewAuthController{}
 
 func AuthRouter(router fiber.Router) {
+	router.Get("/me", authController.GetSessionById)
+
 	router.Post("/register", authController.RegisterUser)
 	router.Post("/login", authController.LoginUser)
-	router.Get("/me", authController.GetSessionById)
 }

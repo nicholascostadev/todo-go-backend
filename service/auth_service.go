@@ -60,7 +60,7 @@ func (T *NewAuthService) LoginUser(user LoginUserData) (model.Session, error) {
 		return model.Session{}, errors.New("Passwords don't match")
 	}
 
-	session, err := model.CreateSession(model.CreateSessionData{
+	session, err := model.CreateSession(model.CreateSessionInput{
 		ID:       foundUser.ID,
 		Username: foundUser.Username,
 	})
@@ -68,14 +68,7 @@ func (T *NewAuthService) LoginUser(user LoginUserData) (model.Session, error) {
 		return model.Session{}, err
 	}
 
-	return model.Session{
-		ID:        session.ID,
-		UserID:    session.UserID,
-		Token:     session.Token,
-		CreatedAt: session.CreatedAt,
-		ExpiresAt: session.ExpiresAt,
-		UpdatedAt: session.UpdatedAt,
-	}, nil
+	return session, nil
 }
 
 func (T *NewAuthService) GetSessionById(id uint) (model.Session, error) {
