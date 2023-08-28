@@ -54,12 +54,12 @@ func generateJWT(jwtData JWTData) (string, error) {
 	return tokenString, nil
 }
 
-type CreateSessionData struct {
+type CreateSessionInput struct {
 	ID       uint   `json:"id"`
 	Username string `json:"username"`
 }
 
-func CreateSession(user CreateSessionData) (Session, error) {
+func CreateSession(user CreateSessionInput) (Session, error) {
 	sessionId := uint(uuid.New().ID())
 	token, err := generateJWT(JWTData{
 		SessionID: sessionId,
@@ -86,12 +86,26 @@ func CreateSession(user CreateSessionData) (Session, error) {
 	return session, nil
 }
 
+func DeleteSession(session Session) (Session, error) {
+	tx := db.Delete(&session)
+
+	if tx.Error != nil {
+		return Session{}, tx.Error
+	}
+
+	return session, nil
+}
+
 func GetSessionById(id uint) (Session, error) {
 	session := Session{ID: id}
 	tx := db.Find(&session)
 
 	if tx.Error != nil {
 		return Session{}, tx.Error
+	}
+
+	if session.ExpiresAt.Before(time.Now()) {
+		return DeleteSession(session)
 	}
 
 	return session, nil
